@@ -1,5 +1,5 @@
+import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://jaimashashi:chhiq1wj6wUznHe8@mycluster.pjyrzn2.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -12,20 +12,17 @@ const client = new MongoClient(uri, {
 });
 
 
-module.exports = class DB {
-  constructor(dbName) {
-    this.dbName = client.db(dbName);
-  }
-
-  async dbConnection(successFn, rejectFn) {
+export default function dbConnection(dbName:string){
+  return new Promise<{client:MongoClient,db:Db}>(async(res,rej)=> {
     try {
       // Connect the client to the server	(optional starting in v4.7)
       await client.connect();
-      await successFn({ client, dbName: this.dbName });
+      const db = client.db(dbName);
+      res({client,db});
     } catch (error) {
-      rejectFn(error)
+      rej(error)
     } finally {
       // await client.close();
     }
-  }
+  })
 }
