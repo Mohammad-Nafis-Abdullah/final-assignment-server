@@ -1,26 +1,64 @@
-const express = require("express");
-const app = express();
+const { ObjectId } = require("mongodb");
+const { isValid, isValidId } = require("./schema/dataValidation");
 
-module.exports = function successFn({ client, dbName }) {
-  console.log('insert into successFn');
-    // const incomeList = dbName.collection("income-list");
-    const incomeList = client.db('final-assignment').collection("income-list");
-    // const expenseList = dbName.collection("expense-list");
-    const expenseList = client.db('final-assignment').collection("expense-list");
-  
-    console.log({incomeList});
-    console.log({expenseList});
-    
+module.exports = function successFn({ client, dbName, app }) {
+  const list = dbName.collection("list");
 
-    app.get('/income-list', async (req, res) => {
-      const data = await incomeList.find({}).toArray();
-      console.log("income",data);
-      res.send({ listName: "income-list", status: 200, data });
-    })
+  // get all data of the list
+  app.get('/list', async (req, res) => {
+    const data = await list.find({}).toArray();
+    res.status(200).send({
+      status: 200,
+      data
+    });
+  });
 
-    app.get('/expense-list', async (req, res) => {
-      const data = await expenseList.find({}).toArray();
-      console.log("expense",data);
-      res.send({ listName: "expense-list", status: 200, data });
-    })
+  // store an item in the list
+  app.post('/list', async (req, res) => {
+    const data = req.body;
+
+    if (!isValid(data)) {
+      res.status(200).send({
+        status: 200,
+        message: 'invalid data'
+      });
+    }
+    else {
+      const result = await list.insertOne({
+        _id: new ObjectId(),
+        ...req.body
+      });
+      res.status(200).send({
+        status: 200,
+        ...result,
+      });
+    }
+  })
+
+  // delete an item from the list
+  app.delete('/list/:id', async (req, res) => {
+    const { id } = req.params;
+    if (isValidId(id)) {
+      const result = await list.deleteOne({ _id: new ObjectId(id) });
+      res.status(200).send({
+        status: 200,
+        ...result
+      })
+    } else {
+      res.status(200).send({
+        status: 200,
+        message: 'Invalid Id'
+      })
+    }
+
+  })
+
+  // check undeclared url
+  app.use('*', (req, res) => {
+    res.status(404).send({
+      status: 404,
+      message: "Not Found",
+      route: req.originalUrl,
+    });
+  });
 }
