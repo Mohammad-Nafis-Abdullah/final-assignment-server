@@ -46,7 +46,7 @@ app.use((0, cors_1.default)());
 app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).send({
         status: 200,
-        message: `Server is running successfully`,
+        message: `Server is running successfully at : ${req.hostname}`,
     });
 }));
 app.listen(PORT, () => {

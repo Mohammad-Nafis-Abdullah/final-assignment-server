@@ -48,7 +48,7 @@ app.use(cors());
 app.get("/", async (req: Request, res: Response) => {
     res.status(200).send({
         status: 200,
-        message: `Server is running successfully`,
+        message: `Server is running successfully at : ${req.hostname}`,
     });
 });
 
