@@ -30,7 +30,6 @@ app.use(cors());
 
         // all routes
         app.use("/list", listRouter);
-        
 
         // check undeclared url
         app.use("*", (req, res) => {
@@ -48,7 +47,7 @@ app.use(cors());
 app.get("/", async (req: Request, res: Response) => {
     res.status(200).send({
         status: 200,
-        message: `Server is running successfully at : ${req.hostname}`,
+        message: `Server is running successfully at : https://${req.hostname}`,
     });
 });
 
