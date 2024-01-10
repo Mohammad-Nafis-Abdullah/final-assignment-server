@@ -1,28 +1,35 @@
+import { Request, Response, NextFunction } from "express";
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
-const uri = "mongodb+srv://jaimashashi:chhiq1wj6wUznHe8@mycluster.pjyrzn2.mongodb.net/?retryWrites=true&w=majority";
+const uri =
+    "mongodb+srv://jaimashashi:chhiq1wj6wUznHe8@mycluster.pjyrzn2.mongodb.net/?retryWrites=true&w=majority";
+const dbName = "final-assignment";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    },
 });
 
-
-export default function dbConnection(dbName:string){
-  return new Promise<{client:MongoClient,db:Db}>(async(res,rej)=> {
-    try {
-      // Connect the client to the server	(optional starting in v4.7)
-      await client.connect();
-      const db = client.db(dbName);
-      res({client,db});
-    } catch (error) {
-      rej(error)
-    } finally {
-      // await client.close();
+export default async function mongodbConnect(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    if (req.originalUrl === "/") {
+        next();
+    } else {
+        try {
+            await client.connect();
+            const db = client.db(dbName);
+            req.mongoClient = client;
+            req.mongoDB = db;
+            next();
+        } catch (error) {
+            next(error);
+        }
     }
-  })
 }
